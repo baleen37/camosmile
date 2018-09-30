@@ -1,0 +1,33 @@
+{
+  "name": "camosmile",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node $NODE_DEBUG_OPTION  dist",
+    "build": "npm run build-ts && npm tslint",
+    "serve": "node dist/server.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build-ts": "tsc",
+    "watch-ts": "tsc -w",
+    "tslint": "tslint -c tslint.json -p tsconfig.json"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/baleen37/camosmile.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/baleen37/camosmile/issues"
+  },
+  "homepage": "https://github.com/baleen37/camosmile#readme",
+  "dependencies": {
+    "aws-sdk": "^2.322.0"
+  },
+  "devDependencies": {
+    "@types/node": "^10.11.3",
+    "typescript": "^3.0.3"
+  }
+}
