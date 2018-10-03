@@ -1,6 +1,14 @@
 {
-  "extends": ["tslint:recommended", "tslint:latest"],
+  "extends": [
+    "tslint:recommended",
+    "tslint:latest"
+  ],
   "rules": {
-    "quotemark": [true, "single"]
+    "quotemark": [
+      true,
+      "single"
+    ],
+    "object-literal-sort-keys": false,
+    "no-var-requires": false
   }
 }

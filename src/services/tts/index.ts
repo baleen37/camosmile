@@ -1,25 +1,23 @@
 import AWS from 'aws-sdk';
-import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
-import * as Stream from 'stream';
-import Logger from '../core/logger';
-import * as fs_extra from '../core/utils/fs-extra';
+import Logger from '../../core/logger';
 import PollyAdapter from './adapter/polly';
+const s3 = new AWS.S3();
 
 interface ITTSClientOptions {
     output_dir?: string;
 }
 
 interface ITTSClientSynthesizeInput {
-    id: string;
+    key: string;
     title: string;
     text: string;
 }
 
 interface ITTSClientSynthesizeOutput {
-    audio_path: string;
-    marks_path: string;
+    audioUrl: string;
+    marksData: string;
 }
 
 class TTSClient {
@@ -44,33 +42,36 @@ class TTSClient {
             VoiceId: 'Seoyeon',
         };
 
-        const audioPath = path.resolve(this.outputDir, `${input.id}.mp3`);
-        await this._fetchFiles(audioPath, {
+        const audioStream = await this._fetchFiles({
             ...params,
             OutputFormat: 'mp3',
         });
+        const s3Result = await s3.upload({
+            Body: audioStream.AudioStream,
+            Bucket: 'camosmile',
+            Key: `${input.key}.mp3`,
+            ACL: 'public-read',
+        }).promise();
 
-        const marksPath = path.resolve(this.outputDir, `${input.id}.marks`);
-        await this._fetchFiles(marksPath, {
+        Logger.log('s3_result', s3Result);
+
+        const marksStream = await this._fetchFiles({
             ...params,
             OutputFormat: 'json',
-            SpeechMarkTypes: ['sentence', 'viseme', 'word'],
+            SpeechMarkTypes: ['word'],
         });
 
-        Logger.log('file_path', audioPath, marksPath);
+        const buffer = marksStream.AudioStream;
+        Logger.log('buffer', buffer.toString());
 
-        return { audio_path: audioPath, marks_path: marksPath } as ITTSClientSynthesizeOutput;
+        return {
+            audioUrl: s3Result.Location,
+            marksData: buffer.toString(),
+        };
     }
 
-    private async _fetchFiles(filePath: string, params: AWS.Polly.Types.SynthesizeSpeechInput) {
-        const dirName = path.dirname(filePath);
-        fs_extra.mkdirPSync(dirName);
-
-        const fileStream = fs.createWriteStream(filePath);
-        const data = await this.pollyAdapter.synthensizeSpeech(params);
-        const bufferStream = new Stream.PassThrough();
-        bufferStream.end(data.AudioStream);
-        bufferStream.pipe(fileStream);
+    private async _fetchFiles(params: AWS.Polly.Types.SynthesizeSpeechInput) {
+        return this.pollyAdapter.synthensizeSpeech(params);
     }
 }
 
