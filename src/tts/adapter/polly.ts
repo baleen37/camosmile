@@ -1,24 +1,25 @@
-import { Polly } from "aws-sdk";
+import { Polly } from 'aws-sdk';
 
-interface PollyAdapterOptions {
+/* tslint:disable */
+interface IPollyAdapterOptions {
 }
 
 class PollyAdapter {
     private client: Polly;
 
-    constructor(client: Polly, options?: PollyAdapterOptions) {
+    constructor(client: Polly, options?: IPollyAdapterOptions) {
         this.client = client;
     }
 
-    synthensizeSpeech(params: Polly.Types.SynthesizeSpeechInput): Promise<Polly.Types.SynthesizeSpeechOutput> {
+    public synthensizeSpeech(params: Polly.Types.SynthesizeSpeechInput): Promise<Polly.Types.SynthesizeSpeechOutput> {
         return new Promise(((resolve, reject) => {
             this.client.synthesizeSpeech(params, (err, data) => {
                 if (err) {
-                    reject(err)
+                    reject(err);
                 } else if (data) {
                     resolve(data);
                 }
-            })
+            });
         }));
     }
 }

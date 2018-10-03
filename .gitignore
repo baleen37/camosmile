@@ -2,6 +2,8 @@
 # Created by https://www.gitignore.io/api/node
 .DS_Store
 
+dev.sqlite3
+
 ### Node ###
 # Logs
 logs
