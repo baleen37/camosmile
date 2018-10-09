@@ -1,5 +1,6 @@
-const fs = require('fs');
-const puppeteer = require('puppeteer');
+import fs = require('fs');
+import path = require('path');
+import puppeteer = require('puppeteer');
 
 const run = async (url: string, file?: string) => {
     if (!url) {
@@ -10,6 +11,7 @@ const run = async (url: string, file?: string) => {
         headless: false,
     }).filter((value: string) => value.toLowerCase() !== '--disable-extensions');
 
+    console.log(__dirname);
     const browser = await puppeteer.launch({
         headless: false,
         ignoreDefaultArgs: true,
@@ -18,7 +20,7 @@ const run = async (url: string, file?: string) => {
             ...workingArgs,
             '--auto-select-desktop-capture-source=pickme',
             '--disable-infobars',
-            '--load-extension=' + __dirname,  // eslint-disable-line no-path-concat
+            '--load-extension=' + path.resolve(__dirname, '..', 'dist'),  // eslint-disable-line no-path-concat
             '--no-sandbox',
             '--disable-setuid-sandbox',
         ],
