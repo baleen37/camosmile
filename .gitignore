@@ -79,7 +79,7 @@ typings/
 # Serverless directories
 .serverless
 
-dist/
+dist/*
 .idea/
 
 

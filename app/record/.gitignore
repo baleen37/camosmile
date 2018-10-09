@@ -1,4 +1,4 @@
-dist/
+dist/*
 !dist/manifest.json
 
 node_modules/
