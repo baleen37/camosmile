@@ -1,0 +1,18 @@
+{
+  "extends": [
+    "tslint:recommended"
+  ],
+  "defaultSeverity": "warning",
+  "rules": {
+    "quotemark": [
+      true,
+      "single"
+    ]
+  },
+  "linterOptions": {
+    "exclude": [
+      "config/**/*.js",
+      "node_modules/**/*.ts"
+    ]
+  }
+}

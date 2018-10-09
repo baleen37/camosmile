@@ -2,7 +2,7 @@ import * as React from 'react';
 import { RouteComponentProps } from 'react-router';
 import { CamosmileApi } from '../../api/CamosmileApi';
 import { IStoryEntity, IStoryMarksEntity } from '../../entities/Story';
-import { stringToUtf8ByteArray, utf8ByteArrayToString } from '../../utils/encoding';
+import { stringToUtf8ByteArray } from '../../utils/encoding';
 import './styles.scss';
 
 
@@ -32,13 +32,21 @@ class Dashboard extends React.Component<IProps, IState> {
         const audio = new Audio(data.audioUrl);
 
         audio.addEventListener('timeupdate', (value) => {
-            console.log('timeupdate', value.timeStamp);
+            console.log('timeupdate', audio.currentTime * 1000);
+
             this.setState({
                 ...this.state,
-                audio_timeStamp: value.timeStamp,
+                audio_timeStamp: audio.currentTime * 1000,
             });
         });
-        audio.play();
+        audio.addEventListener('canplaythrough', () => {
+            document.title = 'pickme';
+            window.postMessage({type: 'REC_CLIENT_PLAY', data: {url: window.location.origin}}, '*')
+            audio.play();
+        }, false);
+        audio.addEventListener('ended', () => {
+            window.postMessage({type: 'REC_CLIENT_STOP'}, '*');
+        });
         this.setState({
             ...this.state,
             story: data,
@@ -70,11 +78,11 @@ class Dashboard extends React.Component<IProps, IState> {
             }
             cursor = Number(index);
         }
-        console.log('cursor', cursor)
+        console.log('cursor', cursor);
         const byteArray = stringToUtf8ByteArray(text);
         return marks.map((mark, index) => {
             // console.log('value', mark.value, 'sub', utf8ByteArrayToString(byteArray.slice(mark.start, mark.end)));
-            if(index === cursor){
+            if (index === cursor) {
                 return <span className="highlight">{ mark.value }</span>;
             } else {
                 return <span>{ mark.value } </span>;
