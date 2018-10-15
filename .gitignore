@@ -79,6 +79,8 @@ typings/
 # Serverless directories
 .serverless
 
+config/production.js
+
 dist/*
 .idea/
 
