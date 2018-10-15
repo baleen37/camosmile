@@ -2,7 +2,7 @@
 
 const Knex = require('knex');
 const objection = require('objection');
-const knexConfig = require('./knexfile');
+const knexConfig = require('../knexfile');
 const knex = Knex(knexConfig.development);
 objection.Model.knex(knex);
 knex.migrate.latest().then(() => console.log('Migrated.'));

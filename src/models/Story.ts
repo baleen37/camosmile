@@ -1,7 +1,4 @@
 import { Model } from 'objection';
-import { knexConnection } from '../knex';
-
-Model.knex(knexConnection);
 
 export type SpeechMarkType = 'sentence' | 'ssml' | 'viseme' | 'word' | string;
 

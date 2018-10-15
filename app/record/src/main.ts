@@ -2,7 +2,7 @@ import fs = require('fs');
 import path = require('path');
 import puppeteer = require('puppeteer');
 
-const run = async (url: string, file?: string) => {
+export const record = async (url: string, file?: string) => {
     if (!url) {
         throw new Error('URL required');
     }
@@ -27,6 +27,7 @@ const run = async (url: string, file?: string) => {
     });
 
     const page = await browser.newPage();
+    await page.setViewport({ width: 1280, height: 720 });
 
     let outStream: any = null;
     await page.exposeFunction('recorderStart', () => {
@@ -59,6 +60,7 @@ const run = async (url: string, file?: string) => {
         }, 2000);
     });
     await page.evaluateOnNewDocument(() => {
+        // @ts-ignore
         window.addEventListener('message', (event) => {
             // Only handle backend messages here
             if (!event.data.type || !event.data.type.startsWith('REC_BACKEND_')) {
@@ -96,13 +98,10 @@ const run = async (url: string, file?: string) => {
     // Loop while waiting for it to stop
     while (true) {
         console.log('Waiting for stop or timeout');
-        const stopped = await waitForStopOrTimeout(30);
+        const stopped = await waitForStopOrTimeout(1800);
         if (!stopped) {
             console.log('Timed out, stopping all video');
             await page.evaluate(() => {
-                // for (const videoElem of document.querySelectorAll('video')) {
-                //     videoElem.pause();
-                // }
                 window.postMessage({ type: 'REC_CLIENT_STOP' }, '*');
             });
         } else {
@@ -114,7 +113,3 @@ const run = async (url: string, file?: string) => {
     console.log('Closing browser');
     await browser.close();
 };
-
-(async () => {
-    await run('http://localhost:8080/story/3d837e97-6d18-4232-94f5-5f03eb0f9bcf');
-})();

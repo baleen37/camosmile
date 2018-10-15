@@ -1,2 +1,0 @@
-import knex from 'knex';
-

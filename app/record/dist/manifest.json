@@ -13,5 +13,5 @@
   "permissions": [
     "desktopCapture",
     "<all_urls>"
-  ],
+  ]
 }

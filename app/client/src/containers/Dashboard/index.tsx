@@ -17,14 +17,20 @@ interface IState {
     uuid: string;
     story?: IStoryEntity;
     audio_timeStamp: number;
+    last_cursor: number;
 }
 
 class Dashboard extends React.Component<IProps, IState> {
+    private containerRef: React.RefObject<any>;
+    private cursorRef: React.RefObject<any>;
+
     constructor(props: IProps) {
         super(props);
 
         const uuid = props.match.params.uuid;
-        this.state = { uuid, audio_timeStamp: 0.0 };
+        this.state = { uuid, audio_timeStamp: 0.0, last_cursor: 0 };
+        this.containerRef = React.createRef();
+        this.cursorRef = React.createRef();
     }
 
     public async componentDidMount() {
@@ -41,11 +47,13 @@ class Dashboard extends React.Component<IProps, IState> {
         });
         audio.addEventListener('canplaythrough', () => {
             document.title = 'pickme';
-            window.postMessage({type: 'REC_CLIENT_PLAY', data: {url: window.location.origin}}, '*')
+            window.postMessage({ type: 'REC_CLIENT_PLAY', data: { url: window.location.origin } }, '*');
             audio.play();
         }, false);
         audio.addEventListener('ended', () => {
-            window.postMessage({type: 'REC_CLIENT_STOP'}, '*');
+            setTimeout(() => {
+                window.postMessage({ type: 'REC_CLIENT_STOP' }, '*');
+            }, 5000);
         });
         this.setState({
             ...this.state,
@@ -53,18 +61,31 @@ class Dashboard extends React.Component<IProps, IState> {
         });
     }
 
+    componentDidUpdate(prevProps: Readonly<IProps>, prevState: Readonly<IState>, snapshot?: any): void {
+        this.onChangeCursor();
+    }
+
     public render() {
         if (!this.state.story) {
             return (<div>loading..</div>);
         }
         return (
-            <div>
-                <h1>uuid : { this.state.uuid }</h1>
-                <p>{ this.state.story.audioUrl }</p>
-                <p>{ this.state.story.title }</p>
-                { this.renderContent(this.state.story.text, this.state.story.marks) }
+            <div className='container' ref={ this.containerRef }>
+                <div className='content'>{ this.renderContent(this.state.story.text, this.state.story.marks) }</div>
             </div>
         );
+    }
+
+    private onChangeCursor() {
+        // @ts-ignore
+        const containerNode = this.containerRef.current;
+        const cursorNode = this.cursorRef.current;
+        if (containerNode.scrollTop <= cursorNode.offsetTop
+            && containerNode.scrollTop + containerNode.offsetHeight >= cursorNode.offsetTop + cursorNode.offsetHeight) {
+            //
+        } else {
+            this.containerRef.current.scrollTop = this.cursorRef.current.offsetTop;
+        }
     }
 
     private renderContent(text: string, marks: IStoryMarksEntity[]) {
@@ -79,13 +100,17 @@ class Dashboard extends React.Component<IProps, IState> {
             cursor = Number(index);
         }
         console.log('cursor', cursor);
+        // this.setState({
+        //     ...this.state,
+        //     last_cursor: cursor,
+        // });
+
         const byteArray = stringToUtf8ByteArray(text);
         return marks.map((mark, index) => {
-            // console.log('value', mark.value, 'sub', utf8ByteArrayToString(byteArray.slice(mark.start, mark.end)));
             if (index === cursor) {
-                return <span className="highlight">{ mark.value }</span>;
+                return <span key={ index } className='highlight' ref={ this.cursorRef }> { mark.value }</span>;
             } else {
-                return <span>{ mark.value } </span>;
+                return <span key={ index }> { mark.value }</span>;
             }
         });
     }

@@ -1,8 +1,8 @@
-import AWS from 'aws-sdk';
+import * as AWS from 'aws-sdk';
 import * as os from 'os';
-import * as path from 'path';
 import Logger from '../../core/logger';
 import PollyAdapter from './adapter/polly';
+
 const s3 = new AWS.S3();
 
 interface ITTSClientOptions {
@@ -61,8 +61,7 @@ class TTSClient {
             SpeechMarkTypes: ['word'],
         });
 
-        const buffer = marksStream.AudioStream;
-        Logger.log('buffer', buffer.toString());
+        const buffer = marksStream.AudioStream as Buffer;
 
         return {
             audioUrl: s3Result.Location,

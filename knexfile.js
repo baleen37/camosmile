@@ -8,6 +8,7 @@ module.exports = {
             user: 'postgres',
             password: 'postgres',
         },
+        timezone: 'UTC',
     },
 
     staging: {
@@ -24,6 +25,7 @@ module.exports = {
         migrations: {
             tableName: 'knex_migrations',
         },
+        timezone: 'UTC',
     },
 
     production: {
@@ -40,5 +42,6 @@ module.exports = {
         migrations: {
             tableName: 'knex_migrations',
         },
+        timezone: 'UTC',
     },
 };

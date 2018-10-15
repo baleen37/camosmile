@@ -1,5 +1,5 @@
 import cors = require('cors');
-import express from 'express';
+import * as express from 'express';
 import Story from '../../models/Story';
 
 const createApp = () => {
@@ -9,7 +9,10 @@ const createApp = () => {
     app.get('/story/:uuid', async (req, res) => {
         const uuid = req.params.uuid;
 
-        const story = await Story.query().findOne({uuid});
+        const story = await Story.query().findOne({ uuid });
+        if (!story) {
+            throw Error('story is not found');
+        }
 
         res.json({
             title: story.title,
